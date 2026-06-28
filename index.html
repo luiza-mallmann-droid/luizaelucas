@@ -7,65 +7,88 @@
   <style>
     html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:#fff}
     .wrap{max-width:900px;margin:0 auto;padding:1rem}
-    .stage{display:flex;align-items:center;justify-content:center;height:100vh}
-    .stage img{max-width:100%;height:auto;cursor:pointer;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
-    .controls{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
-    .controls a{padding:.6rem 1rem;background:#0b5cff;color:#fff;text-decoration:none;border-radius:8px}
-    .controls a.secondary{background:#6c757d}
-    footer{color:#666;text-align:center;margin-top:1rem;font-size:.95rem}
+    /* stage contém a imagem do convite e os hotspots posicionados sobre ela */
+    .stage{position:relative;display:flex;align-items:center;justify-content:center;height:100vh}
+    .stage img{max-width:100%;height:auto;cursor:pointer;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.08);display:block}
+
+    /* hotspots (links invisíveis sobre os ícones) */
+    .hotspot{position:absolute;display:block;background:transparent;border-radius:8px}
+    /* por padrão, hotspots não aceitam clique enquanto estiver na capa (evita abrir o convite ao clicar nos links) */
+    .stage .hotspot{pointer-events:none}
+    /* quando o convite estiver aberto (classe .open no stage), ativamos os hotspots */
+    .stage.open .hotspot{pointer-events:auto}
+
+    /* acessibilidade: foco visível quando navegando por teclado */
+    .hotspot:focus{outline:3px solid rgba(11,92,255,0.6);outline-offset:2px}
+
+    /* Ajuste de posição e tamanho via CSS custom properties (fácil de editar):
+       --x: posição horizontal (percent)
+       --y: posição vertical (percent)
+       --w: largura do hotspot (percent relativo ao contêiner)
+       --h: altura do hotspot (percent relativo ao contêiner)
+    */
+    .hotspot{left:var(--x,50%);top:var(--y,60%);width:var(--w,12%);height:var(--h,10%);transform:translate(-50%,-50%)}
+
+    /* pequena dica visual para depuração: adicione ?debug ao final da URL para ver os retângulos */
+    :root{}.hotspot.debug{background:rgba(11,92,255,0.12);border:1px dashed rgba(11,92,255,0.3)}
+
+    /* Texto pequeno removido conforme pedido (nenhum botão em baixo da imagem) */
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- Área principal: inicia mostrando a capa (convite1.png) -->
+    <!-- Área principal: inicia mostrando a capa (convite1.png). Hotspots ficam posicionados sobre a imagem do convite interno. -->
     <div class="stage" id="stage">
       <img id="mainImg" src="convite1.png" alt="Capa - Clique para abrir o convite">
-    </div>
 
-    <div class="controls" id="links" style="display:none">
-      <a href="https://maps.app.goo.gl/M2qk9ErcDQqnH5HV8" target="_blank" rel="noopener">Local da cerimônia</a>
-      <a href="http://sites.icasei.com.br/luizaelucas2027" target="_blank" rel="noopener" class="secondary">Mais informações</a>
-      <a href="https://sites.icasei.com.br/luizaelucas2027/pages/37816265" target="_blank" rel="noopener" class="secondary">Confirmar presença</a>
+      <!-- Hotspots invisíveis. Ajuste os valores de --x/--y/--w/--h se precisar alinhar melhor. -->
+      <!-- Exemplo de posições (valores percentuais aproximados). Se precisar eu ajusto com precisão. -->
+      <a id="hs-location" class="hotspot" href="https://maps.app.goo.gl/M2qk9ErcDQqnH5HV8" target="_blank" rel="noopener" aria-label="Local da cerimônia" title="Local da cerimônia" style="--x:30%; --y:62%; --w:16%; --h:12%"></a>
+      <a id="hs-info" class="hotspot" href="http://sites.icasei.com.br/luizaelucas2027" target="_blank" rel="noopener" aria-label="Mais informações" title="Mais informações" style="--x:50%; --y:62%; --w:16%; --h:12%"></a>
+      <a id="hs-rsvp" class="hotspot" href="https://sites.icasei.com.br/luizaelucas2027/pages/37816265" target="_blank" rel="noopener" aria-label="Confirmar presença" title="Confirmar presença" style="--x:70%; --y:62%; --w:16%; --h:12%"></a>
     </div>
-
-    <footer id="footerText" style="display:none">
-      <p>Data: 29/05/2027 — Horário: 15:00 — Fazenda Verde, Praia do Rosa - RS</p>
-    </footer>
   </div>
 
   <script>
     const mainImg = document.getElementById('mainImg');
-    const links = document.getElementById('links');
-    const footer = document.getElementById('footerText');
+    const stage = document.getElementById('stage');
+    const hsLocation = document.getElementById('hs-location');
+    const hsInfo = document.getElementById('hs-info');
+    const hsRsvp = document.getElementById('hs-rsvp');
 
     // Estado: 0 = capa (convite1), 1 = convite aberto (convite2)
     let state = 0;
 
+    function openInvite() {
+      mainImg.src = 'convite2.png';
+      mainImg.alt = 'Convite - Luiza & Lucas';
+      stage.classList.add('open');
+      state = 1;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function closeInvite() {
+      mainImg.src = 'convite1.png';
+      mainImg.alt = 'Capa - Clique para abrir o convite';
+      stage.classList.remove('open');
+      state = 0;
+    }
+
     mainImg.addEventListener('click', () => {
-      if (state === 0) {
-        // troca para a segunda imagem (convite aberto)
-        mainImg.src = 'convite2.png';
-        mainImg.alt = 'Convite - Luiza & Lucas';
-        links.style.display = 'flex';
-        footer.style.display = 'block';
-        state = 1;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        // volta para a capa
-        mainImg.src = 'convite1.png';
-        mainImg.alt = 'Capa - Clique para abrir o convite';
-        links.style.display = 'none';
-        footer.style.display = 'none';
-        state = 0;
-      }
+      if (state === 0) openInvite(); else closeInvite();
+    });
+
+    // Evita que o clique no hotspot também dispare o toggle do convite
+    [hsLocation, hsInfo, hsRsvp].forEach(el => {
+      el.addEventListener('click', (e) => { e.stopPropagation(); });
+      // para navegação por teclado, abrimos o link normalmente; o stopPropagation previne toggle
     });
 
     // Se abrir a página com #open já mostra o convite aberto
-    if (location.hash === '#open') {
-      mainImg.src = 'convite2.png';
-      links.style.display = 'flex';
-      footer.style.display = 'block';
-      state = 1;
+    if (location.hash === '#open') openInvite();
+
+    // Modo de depuração: adicionar ?debug à URL para mostrar os retângulos dos hotspots
+    if (location.search.includes('debug')) {
+      document.querySelectorAll('.hotspot').forEach(h => h.classList.add('debug'));
     }
   </script>
 </body>
