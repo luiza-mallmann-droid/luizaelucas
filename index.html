@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Luiza & Lucas — Convite</title>
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:#fff}
+    .wrap{max-width:900px;margin:0 auto;padding:1rem}
+    .stage{display:flex;align-items:center;justify-content:center;height:100vh}
+    .stage img{max-width:100%;height:auto;cursor:pointer;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+    .controls{display:flex;gap:.5rem;justify-content:center;margin-top:1rem;flex-wrap:wrap}
+    .controls a{padding:.6rem 1rem;background:#0b5cff;color:#fff;text-decoration:none;border-radius:8px}
+    .controls a.secondary{background:#6c757d}
+    footer{color:#666;text-align:center;margin-top:1rem;font-size:.95rem}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Área principal: inicia mostrando a capa (convite1.png) -->
+    <div class="stage" id="stage">
+      <img id="mainImg" src="convite1.png" alt="Capa - Clique para abrir o convite">
+    </div>
+
+    <div class="controls" id="links" style="display:none">
+      <a href="https://maps.app.goo.gl/M2qk9ErcDQqnH5HV8" target="_blank" rel="noopener">Local da cerimônia</a>
+      <a href="http://sites.icasei.com.br/luizaelucas2027" target="_blank" rel="noopener" class="secondary">Mais informações</a>
+      <a href="https://sites.icasei.com.br/luizaelucas2027/pages/37816265" target="_blank" rel="noopener" class="secondary">Confirmar presença</a>
+    </div>
+
+    <footer id="footerText" style="display:none">
+      <p>Data: 29/05/2027 — Horário: 15:00 — Fazenda Verde, Praia do Rosa - RS</p>
+    </footer>
+  </div>
+
+  <script>
+    const mainImg = document.getElementById('mainImg');
+    const links = document.getElementById('links');
+    const footer = document.getElementById('footerText');
+
+    // Estado: 0 = capa (convite1), 1 = convite aberto (convite2)
+    let state = 0;
+
+    mainImg.addEventListener('click', () => {
+      if (state === 0) {
+        // troca para a segunda imagem (convite aberto)
+        mainImg.src = 'convite2.png';
+        mainImg.alt = 'Convite - Luiza & Lucas';
+        links.style.display = 'flex';
+        footer.style.display = 'block';
+        state = 1;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // volta para a capa
+        mainImg.src = 'convite1.png';
+        mainImg.alt = 'Capa - Clique para abrir o convite';
+        links.style.display = 'none';
+        footer.style.display = 'none';
+        state = 0;
+      }
+    });
+
+    // Se abrir a página com #open já mostra o convite aberto
+    if (location.hash === '#open') {
+      mainImg.src = 'convite2.png';
+      links.style.display = 'flex';
+      footer.style.display = 'block';
+      state = 1;
+    }
+  </script>
+</body>
+</html>
